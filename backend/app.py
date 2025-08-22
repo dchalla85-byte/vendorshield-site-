@@ -1,31 +1,26 @@
-from fastapi import FastAPI, UploadFile, File
-from fastapi.middleware.cors import CORSMiddleware
-from utils.parser import extract_text_from_file
-from utils.analyzer import analyze_invoice
-from utils.exporter import save_to_excel
+from flask import Flask, request, jsonify
+from utils.extractor import extract_text_from_pdf
 import os
 
-app = FastAPI()
+app = Flask(__name__)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # update this in production
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+UPLOAD_FOLDER = './uploads'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-@app.post("/scan")
-async def scan_invoice(file: UploadFile = File(...)):
-    contents = await file.read()
-    filename = file.filename
-    file_path = os.path.join("uploads", filename)
+@app.route('/upload', methods=['POST'])
+def upload():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part in request'}), 400
 
-    with open(file_path, "wb") as f:
-        f.write(contents)
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
 
-    text = extract_text_from_file(file_path)
-    result = analyze_invoice(text)
-    save_to_excel(filename, result)
+    filepath = os.path.join(UPLOAD_FOLDER, file.filename)
+    file.save(filepath)
 
-    return result
+    try:
+        text = extract_text_from_pdf(filepath)
+        return jsonify({'text': text})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
