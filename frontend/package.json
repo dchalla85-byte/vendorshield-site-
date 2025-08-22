@@ -2,7 +2,7 @@
   "name": "invoiceguard-frontend",
   "version": "1.0.0",
   "private": true,
-  "homepage": "https://<your-github-username>.github.io/invoiceguard-ai",
+  "homepage": "https://dchalla85-byte.github.io/vendorshield-site/",
   "dependencies": {
     "axios": "^1.6.0",
     "gh-pages": "^6.0.0",
@@ -17,5 +17,17 @@
     "build": "react-scripts build",
     "deploy": "gh-pages -d build",
     "predeploy": "npm run build"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }
